@@ -1,17 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getPineconeClient } from '@/lib/pinecone';
 import { getEmbeddings } from '@/lib/embeddings';
 import connectToDatabase from '@/lib/db';
 import { ChatLog } from '@/models/ChatLog';
 import { rateLimit } from '@/lib/rate-limit';
 
-// Edge runtime is usually preferred for chat, but Mongoose (MongoDB) requires Node.js runtime.
-// So we keep the default Node.js runtime.
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || '',
-});
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,7 +25,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Messages are required' }, { status: 400 });
     }
 
-    // Get the last user message to query the vector DB
     const lastMessage = messages[messages.length - 1];
     const userQuery = lastMessage.content;
 
@@ -48,11 +42,9 @@ export async function POST(req: NextRequest) {
           vector: queryEmbedding,
           topK: 5,
           includeMetadata: true,
-          // Optional: filter by subject if provided
           filter: subject ? { subject: { $eq: subject } } : undefined
         });
 
-        // Combine retrieved chunks
         if (searchResults.matches && searchResults.matches.length > 0) {
           contextText = searchResults.matches
             .map((match: any) => match.metadata?.text || '')
@@ -60,49 +52,44 @@ export async function POST(req: NextRequest) {
         }
       } catch (err) {
         console.error('Vector DB search error:', err);
-        // Fallback to empty context if DB fails
       }
     }
 
     // 5. Build System Prompt with Context
-    const systemPrompt = `You are a helpful AI study assistant for TBS Classes. 
+    const systemInstruction = `You are a helpful AI study assistant for TBS Classes. 
 Your goal is to answer student questions STRICTLY based on the provided notes/syllabus context below.
 Do not use outside knowledge. If the answer is not present in the context below, you must reply exactly with: 
 "This isn't covered in our current notes for this subject" and do not attempt to guess.
 
 CONTEXT FROM NOTES:
-${contextText || 'No specific notes found for this query.'}
-`;
+${contextText || 'No specific notes found for this query.'}`;
 
     // 6. Keep only last 5 messages for context
     const recentMessages = messages.slice(-5);
     
-    // Format messages for Anthropic
-    const anthropicMessages = recentMessages.map((msg: any) => ({
-      role: msg.role === 'user' ? 'user' : 'assistant',
-      content: msg.content
+    // Format messages for Gemini (Gemini uses 'user' and 'model' roles)
+    const geminiHistory = recentMessages.slice(0, -1).map((msg: any) => ({
+      role: msg.role === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.content }]
     }));
 
-    // 7. Call Anthropic API
-    const responseStream = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20240620',
-      system: systemPrompt,
-      messages: anthropicMessages,
-      max_tokens: 1024,
-      stream: true,
+    // 7. Call Gemini API
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
+      systemInstruction: systemInstruction 
     });
 
+    const chat = model.startChat({ history: geminiHistory });
+    const result = await chat.sendMessageStream(userQuery);
+
     // 8. Stream the response back to the client
-    // We create a custom ReadableStream to parse Anthropic stream to plain text stream
     let fullResponse = '';
     const stream = new ReadableStream({
       async start(controller) {
-        for await (const chunk of responseStream) {
-          if (chunk.type === 'content_block_delta' && chunk.delta?.text) {
-            const text = chunk.delta.text;
-            fullResponse += text;
-            controller.enqueue(new TextEncoder().encode(text));
-          }
+        for await (const chunk of result.stream) {
+          const chunkText = chunk.text();
+          fullResponse += chunkText;
+          controller.enqueue(new TextEncoder().encode(chunkText));
         }
         controller.close();
         
