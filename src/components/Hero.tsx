@@ -4,7 +4,7 @@ import { ArrowRight, Code2, BookOpen } from 'lucide-react';
 
 const Hero = () => {
   return (
-    <section className="bg-white pt-0 lg:pt-2 pb-24 overflow-hidden">
+    <section className="bg-white pt-0 lg:pt-2 pb-24 overflow-visible">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row lg:items-start lg:pt-12 items-center gap-16">
 
@@ -58,14 +58,14 @@ const Hero = () => {
                 alt="Engineering Students"
                 fill
                 priority
-                className="object-contain brightness-110 contrast-105 transition-opacity duration-300 opacity-100 group-hover:opacity-0 z-10"
+                className="object-contain scale-[1.2] md:scale-[1.25] origin-bottom brightness-110 contrast-105 transition-opacity duration-300 opacity-100 group-hover:opacity-0 z-10"
               />
               <Image
                 src="/images/students-smile.jpg"
                 alt="Engineering Students Smiling"
                 fill
                 priority
-                className="object-contain brightness-110 contrast-105 transition-opacity duration-300 opacity-0 group-hover:opacity-100 z-10"
+                className="object-contain scale-[1.2] md:scale-[1.25] origin-bottom brightness-110 contrast-105 transition-opacity duration-300 opacity-0 group-hover:opacity-100 z-10"
               />
             </div>
           </div>
