@@ -4,48 +4,48 @@ import { ArrowRight, Code2, BookOpen } from 'lucide-react';
 
 const Hero = () => {
   return (
-    <section className="bg-white pt-8 pb-20 overflow-hidden">
+    <section className="bg-white pt-16 pb-24 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row items-center gap-12">
+        <div className="flex flex-col lg:flex-row items-center gap-16">
 
           <div className="w-full lg:w-1/2 flex flex-col items-start text-left">
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-navy leading-tight mb-6">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-navy leading-tight mb-8">
               Your Complete <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-500">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-500 pb-2 inline-block">
                 Educational Ecosystem
               </span>
             </h1>
 
-            <p className="text-lg text-gray-600 mb-8 max-w-xl font-medium">
+            <p className="text-lg md:text-xl text-gray-600 mb-12 max-w-xl font-medium leading-relaxed">
               Combine academic learning, AI assistance, exam prep, coding practice, and career roadmaps all in one professional platform designed for college students.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto">
               <Link
                 href="/subjects"
-                className="inline-flex items-center justify-center gap-2 bg-navy text-white font-bold px-8 py-4 rounded-xl hover:bg-primary hover:text-navy transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1"
+                className="inline-flex items-center justify-center gap-2 bg-navy text-white font-bold px-10 py-4 rounded-xl hover:bg-primary hover:text-navy transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 text-lg"
               >
                 Explore Subjects
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-6 h-6" />
               </Link>
               <Link
                 href="/notes"
-                className="inline-flex items-center justify-center gap-2 bg-white text-navy border-2 border-gray-200 font-bold px-8 py-4 rounded-xl hover:border-primary hover:bg-primary/5 transition-all"
+                className="inline-flex items-center justify-center gap-2 bg-white text-navy border-2 border-gray-200 font-bold px-10 py-4 rounded-xl hover:border-primary hover:bg-primary/5 transition-all text-lg"
               >
                 Browse Notes
               </Link>
             </div>
 
-            <div className="mt-10 flex items-center gap-6 text-sm font-semibold text-gray-500">
+            <div className="mt-14 flex flex-wrap items-center gap-8 text-base font-semibold text-gray-500">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-500"></div> AI Assistant
+                <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-sm"></div> AI Assistant
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-blue-500"></div> Code Practice
+                <div className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-sm"></div> Code Practice
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-orange-500"></div> Roadmaps
+                <div className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-sm"></div> Roadmaps
               </div>
             </div>
           </div>
