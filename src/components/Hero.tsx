@@ -52,20 +52,20 @@ const Hero = () => {
 
           <div className="w-full lg:w-1/2 relative mt-10 lg:mt-0">
 
-            <div className="aspect-square md:aspect-[4/3] bg-white flex items-center justify-center relative overflow-visible group">
+            <div className="h-[450px] sm:h-[550px] lg:h-[650px] xl:h-[750px] w-full flex items-center justify-center relative overflow-visible group">
               <Image
                 src="/images/students-normal.jpg"
                 alt="Engineering Students"
                 fill
                 priority
-                className="object-contain brightness-110 contrast-105 transition-opacity duration-300 opacity-100 group-hover:opacity-0 z-10"
+                className="object-contain scale-110 origin-bottom brightness-110 contrast-105 transition-opacity duration-300 opacity-100 group-hover:opacity-0 z-10"
               />
               <Image
                 src="/images/students-smile.jpg"
                 alt="Engineering Students Smiling"
                 fill
                 priority
-                className="object-contain brightness-110 contrast-105 transition-opacity duration-300 opacity-0 group-hover:opacity-100 z-10"
+                className="object-contain scale-110 origin-bottom brightness-110 contrast-105 transition-opacity duration-300 opacity-0 group-hover:opacity-100 z-10"
               />
             </div>
           </div>
