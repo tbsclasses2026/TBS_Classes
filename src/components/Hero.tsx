@@ -11,9 +11,9 @@ const Hero = () => {
           <div className="w-full lg:w-1/2 flex flex-col items-start text-left">
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-navy leading-[1.15] mb-6">
-              Your Complete{' '}
+              Master Your{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-500 pb-1 inline-block">
-                Educational Ecosystem
+                Engineering Journey
               </span>
             </h1>
 
