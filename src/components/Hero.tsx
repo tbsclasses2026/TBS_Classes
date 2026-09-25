@@ -4,7 +4,7 @@ import { ArrowRight, Code2, BookOpen } from 'lucide-react';
 
 const Hero = () => {
   return (
-    <section className="bg-white pt-16 pb-24 overflow-hidden">
+    <section className="bg-white pt-4 pb-24 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row items-center gap-16">
 
