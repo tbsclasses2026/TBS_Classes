@@ -9,8 +9,8 @@ import { getEmbeddings } from "@/lib/embeddings";
 import { notifyNewContent } from "@/lib/notifications";
 
 // Supabase Setup
-const supabaseUrl = process.env.SUPABASE_URL || "";
-const supabaseKey = process.env.SUPABASE_ANON_KEY || "";
+const supabaseUrl = process.env.SUPABASE_URL || "https://placeholder.supabase.co";
+const supabaseKey = process.env.SUPABASE_ANON_KEY || "placeholder-key";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function GET() {
