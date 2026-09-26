@@ -2,13 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { Search, Download, FileText, Eye, X } from "lucide-react";
-import { Document, Page, pdfjs } from 'react-pdf';
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-import 'react-pdf/dist/Page/TextLayer.css';
+import dynamic from "next/dynamic";
 
-if (typeof window !== 'undefined') {
-  pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-}
+const PDFViewer = dynamic(() => import("@/components/PDFViewer"), { ssr: false });
 
 export default function NotesPage() {
   const [notes, setNotes] = useState([]);
@@ -21,7 +17,6 @@ export default function NotesPage() {
   const [filterType, setFilterType] = useState("");
 
   const [previewNote, setPreviewNote] = useState<any>(null);
-  const [numPages, setNumPages] = useState<number>();
 
   useEffect(() => {
     fetch("/api/admin/notes")
@@ -151,23 +146,7 @@ export default function NotesPage() {
               </div>
             </div>
             <div className="flex-1 overflow-auto bg-gray-100 p-4 flex justify-center">
-              <Document
-                file={previewNote.fileUrl}
-                onLoadSuccess={({ numPages }) => setNumPages(numPages)}
-                loading={<div className="p-20 text-gray-500">Loading PDF...</div>}
-                error={<div className="p-20 text-red-500">Failed to load PDF. Please download it instead.</div>}
-              >
-                {Array.from(new Array(numPages || 0), (el, index) => (
-                  <Page 
-                    key={`page_${index + 1}`} 
-                    pageNumber={index + 1} 
-                    className="mb-4 shadow-md"
-                    width={800}
-                    renderTextLayer={false}
-                    renderAnnotationLayer={false}
-                  />
-                ))}
-              </Document>
+              <PDFViewer fileUrl={previewNote.fileUrl} />
             </div>
           </div>
         </div>
