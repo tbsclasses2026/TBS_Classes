@@ -1,4 +1,12 @@
 import mongoose from 'mongoose';
+import dns from 'dns';
+
+// Bypass ISP/Local DNS blocks (querySrv ECONNREFUSED) by forcing Google DNS
+try {
+  dns.setServers(['8.8.8.8', '8.8.4.4']);
+} catch (error) {
+  console.warn('Failed to set custom DNS servers:', error);
+}
 
 const MONGODB_URI = process.env.MONGODB_URI || '';
 
@@ -25,6 +33,8 @@ async function connectToDatabase() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      family: 4, // Use IPv4, skip trying IPv6
+      serverSelectionTimeoutMS: 5000,
     };
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {

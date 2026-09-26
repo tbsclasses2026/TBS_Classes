@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
-import { useChat } from 'ai/react';
+import { useChat } from '@ai-sdk/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, User, Bot, Loader2, BookOpen } from 'lucide-react';
 
@@ -10,10 +10,55 @@ export default function ChatWidget({ defaultSubject = '' }: { defaultSubject?: s
   const [subject, setSubject] = useState(defaultSubject);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
-    api: '/api/chat',
-    body: { subject },
-  });
+  const [messages, setMessages] = useState<any[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
+
+    const userMessage = { role: 'user', content: input };
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
+    setInput('');
+    setIsLoading(true);
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: newMessages, subject }),
+      });
+
+      if (!res.ok) throw new Error('API Error');
+
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder();
+      let assistantContent = '';
+
+      setMessages([...newMessages, { role: 'assistant', content: '' }]);
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          assistantContent += decoder.decode(value, { stream: true });
+          
+          setMessages(prev => {
+            const updated = [...prev];
+            updated[updated.length - 1].content = assistantContent;
+            return updated;
+          });
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Oops! Something went wrong. Please try again.' }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const subjects = ['All Subjects', 'C Programming', 'Data Structures', 'Operating Systems', 'Computer Networks', 'Database Systems'];
 
@@ -89,13 +134,13 @@ export default function ChatWidget({ defaultSubject = '' }: { defaultSubject?: s
               <form onSubmit={handleSubmit} className="p-3 bg-white border-t flex gap-2">
                 <input
                   value={input}
-                  onChange={handleInputChange}
+                  onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask a question..."
                   className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20"
                 />
                 <button 
                   type="submit" 
-                  disabled={isLoading || !input.trim()}
+                  disabled={isLoading || !input || input.trim() === ''}
                   className="w-10 h-10 rounded-full bg-navy text-white flex items-center justify-center hover:bg-primary transition-colors disabled:opacity-50"
                 >
                   {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}

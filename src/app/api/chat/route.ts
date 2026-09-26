@@ -6,7 +6,13 @@ import connectToDatabase from '@/lib/db';
 import { ChatLog } from '@/models/ChatLog';
 import { rateLimit } from '@/lib/rate-limit';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+import { streamText } from 'ai';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
+
+const googleProvider = createGoogleGenerativeAI({
+  apiKey: process.env.GEMINI_API_KEY || '',
+  baseURL: 'https://generativelanguage.googleapis.com/v1beta',
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -67,39 +73,19 @@ ${contextText || 'No specific notes found for this query.'}`;
     // 6. Keep only last 5 messages for context
     const recentMessages = messages.slice(-5);
     
-    // Format messages for Gemini (Gemini uses 'user' and 'model' roles)
-    const geminiHistory = recentMessages.slice(0, -1).map((msg: any) => ({
-      role: msg.role === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.content }]
-    }));
-
-    // 7. Call Gemini API
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
-      systemInstruction: systemInstruction 
-    });
-
-    const chat = model.startChat({ history: geminiHistory });
-    const result = await chat.sendMessageStream(userQuery);
-
-    // 8. Stream the response back to the client
-    let fullResponse = '';
-    const stream = new ReadableStream({
-      async start(controller) {
-        for await (const chunk of result.stream) {
-          const chunkText = chunk.text();
-          fullResponse += chunkText;
-          controller.enqueue(new TextEncoder().encode(chunkText));
-        }
-        controller.close();
-        
-        // 9. Log the Q&A to MongoDB asynchronously after streaming is complete
+    // 7. Call Gemini API via Vercel AI SDK
+    const result = await streamText({
+      model: googleProvider('gemini-1.5-flash'),
+      system: systemInstruction,
+      messages: recentMessages,
+      onFinish: async ({ text }) => {
+        // 8. Log the Q&A to MongoDB asynchronously after streaming is complete
         try {
           if (process.env.MONGODB_URI) {
             await connectToDatabase();
             const logMessages = [
               ...recentMessages,
-              { role: 'assistant', content: fullResponse }
+              { role: 'assistant', content: text }
             ];
             await ChatLog.create({
               userId: ip,
@@ -110,12 +96,10 @@ ${contextText || 'No specific notes found for this query.'}`;
         } catch (logErr) {
           console.error('Error logging to MongoDB:', logErr);
         }
-      },
+      }
     });
 
-    return new Response(stream, {
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-    });
+    return result.toTextStreamResponse();
 
   } catch (error: any) {
     console.error('Chat API Error:', error);

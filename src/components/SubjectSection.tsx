@@ -1,92 +1,60 @@
 import Link from 'next/link';
 import { ChevronRight, Cpu, Zap, Beaker, Calculator, Binary, Database, Globe } from 'lucide-react';
 
-const SubjectCard = ({ title, description, icon: Icon, topics, semester }: any) => {
-  return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-primary/50 transition-all group flex flex-col h-full">
-      <div className="flex justify-between items-start mb-4">
-        <div className="p-3 bg-gray-50 rounded-xl text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-          <Icon className="w-6 h-6" />
-        </div>
-        <span className="text-xs font-semibold px-3 py-1 bg-gray-100 text-gray-600 rounded-full">
-          Semester {semester}
-        </span>
-      </div>
-      
-      <h3 className="font-bold text-lg text-navy mb-2">{title}</h3>
-      <p className="text-sm text-gray-500 mb-4 flex-grow">{description}</p>
-      
-      <div className="mb-6">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Key Topics</p>
-        <div className="flex flex-wrap gap-2">
-          {topics.map((topic: string, i: number) => (
-            <span key={i} className="text-xs bg-gray-50 text-gray-600 px-2 py-1 rounded border border-gray-100">
-              {topic}
-            </span>
-          ))}
-        </div>
-      </div>
-      
-      <Link href="/subjects/detail" className="mt-auto inline-flex items-center text-sm font-semibold text-primary hover:text-primary-hover transition-colors">
-        View Subject
-        <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-      </Link>
-    </div>
-  );
-};
-
 const SubjectSection = () => {
   const subjects = [
-    {
-      title: "Engineering Mathematics",
-      description: "Calculus, Linear Algebra, and Differential Equations for engineering applications.",
-      icon: Calculator,
-      topics: ["Matrices", "Calculus", "Vector Algebra"],
-      semester: 1
-    },
-    {
-      title: "Engineering Physics",
-      description: "Fundamentals of quantum mechanics, optics, and solid-state physics.",
-      icon: Zap,
-      topics: ["Quantum Physics", "Optics", "Lasers"],
-      semester: 1
-    },
-    {
-      title: "Basic Electrical",
-      description: "DC/AC circuits, transformers, and basic electrical machines.",
-      icon: Cpu,
-      topics: ["DC Circuits", "AC Circuits", "Transformers"],
-      semester: 2
-    },
-    {
-      title: "Data Structures",
-      description: "Core concepts of organizing and manipulating data efficiently.",
-      icon: Database,
-      topics: ["Arrays", "Linked Lists", "Trees", "Graphs"],
-      semester: 3
-    }
+    "Engineering Mathematics", "Data Structures", "Engineering Physics", 
+    "Basic Electrical", "Computer Networks", "Operating Systems",
+    "Database Management", "Software Engineering", "Digital Logic Design", 
+    "Analog Electronics", "Object Oriented Programming", "Microprocessors"
   ];
 
   return (
-    <section className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">Engineering Subjects</h2>
-          <p className="text-gray-600">
-            Understand concepts clearly and prepare effectively for your semester examinations.
-          </p>
+    <section className="py-12 bg-slate-900 overflow-hidden relative border-y border-slate-800">
+      {/* Subtle radial gradient for depth */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-primary/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 relative z-10">
+        <div className="text-center">
+          <span className="text-primary font-bold tracking-[0.2em] uppercase text-xs mb-2 block">
+            Core Curriculum
+          </span>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-white">
+            Explore Popular Subjects
+          </h2>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {subjects.map((sub, idx) => (
-            <SubjectCard key={idx} {...sub} />
+      </div>
+      
+      {/* Inline styles for the marquee animation */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-33.33%); }
+        }
+        .animate-marquee {
+          animation: marquee 50s linear infinite;
+        }
+        .animate-marquee:hover {
+          animation-play-state: paused;
+        }
+      `}} />
+
+      <div className="relative w-full overflow-hidden z-10 py-4">
+        {/* Left and right fading edges for a smooth look */}
+        <div className="absolute left-0 top-0 bottom-0 w-32 md:w-64 bg-gradient-to-r from-slate-900 to-transparent z-20 pointer-events-none"></div>
+        <div className="absolute right-0 top-0 bottom-0 w-32 md:w-64 bg-gradient-to-l from-slate-900 to-transparent z-20 pointer-events-none"></div>
+
+        <div className="flex w-max gap-8 px-4 animate-marquee">
+          {[...subjects, ...subjects, ...subjects].map((sub, idx) => (
+            <Link 
+              href="/subjects" 
+              key={idx}
+              className="group flex items-center gap-4 whitespace-nowrap bg-slate-800/40 backdrop-blur-md border border-slate-700/50 text-slate-300 hover:text-white hover:border-primary/60 hover:bg-slate-800 transition-all duration-300 px-8 py-4 rounded-full font-semibold text-base hover:shadow-[0_0_20px_-3px_rgba(255,184,0,0.4)] hover:-translate-y-1"
+            >
+              <span className="w-2 h-2 rounded-full bg-slate-600 group-hover:bg-primary transition-colors shadow-[0_0_8px_0_transparent] group-hover:shadow-[0_0_8px_0_rgba(255,184,0,0.8)]"></span>
+              {sub}
+            </Link>
           ))}
-        </div>
-        
-        <div className="mt-12 text-center">
-          <Link href="/subjects" className="inline-flex items-center justify-center px-6 py-3 border-2 border-gray-200 font-semibold rounded-xl text-navy hover:border-primary hover:text-primary transition-colors">
-            View All Subjects
-          </Link>
         </div>
       </div>
     </section>
