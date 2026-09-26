@@ -8,10 +8,17 @@ import { getPineconeClient } from "@/lib/pinecone";
 import { getEmbeddings } from "@/lib/embeddings";
 import { notifyNewContent } from "@/lib/notifications";
 
-// Supabase Setup
-const supabaseUrl = process.env.SUPABASE_URL || "https://placeholder.supabase.co";
-const supabaseKey = process.env.SUPABASE_ANON_KEY || "placeholder-key";
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Lazy initialization of Supabase Client to prevent build-time errors
+const getSupabaseClient = () => {
+  const supabaseUrl = process.env.SUPABASE_URL || "";
+  const supabaseKey = process.env.SUPABASE_ANON_KEY || "";
+  
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error("Missing Supabase Environment Variables");
+  }
+  
+  return createClient(supabaseUrl, supabaseKey);
+};
 
 export async function GET() {
   try {
@@ -43,6 +50,7 @@ export async function POST(req: NextRequest) {
     if (!subject) return NextResponse.json({ message: "Subject not found" }, { status: 404 });
 
     // 1. Upload to Supabase Storage
+    const supabase = getSupabaseClient();
     const fileName = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from("notes")
