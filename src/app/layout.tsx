@@ -5,7 +5,6 @@ import AuthProvider from "@/components/AuthProvider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ChatWidget from "@/components/ChatWidget";
-import Preloader from "@/components/Preloader";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,7 +22,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} bg-gray-light text-navy min-h-screen flex flex-col`}>
-        <Preloader />
         <AuthProvider>
           <Navbar />
           <main className="flex-grow">
