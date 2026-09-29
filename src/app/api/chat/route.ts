@@ -1,0 +1,108 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getPineconeClient } from '@/lib/pinecone';
+import { getEmbeddings } from '@/lib/embeddings';
+import connectToDatabase from '@/lib/db';
+import { ChatLog } from '@/models/ChatLog';
+import { rateLimit } from '@/lib/rate-limit';
+
+import { streamText } from 'ai';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
+
+const googleProvider = createGoogleGenerativeAI({
+  apiKey: process.env.GEMINI_API_KEY || '',
+  baseURL: 'https://generativelanguage.googleapis.com/v1beta',
+});
+
+export async function POST(req: NextRequest) {
+  try {
+    // 1. Rate Limiting
+    const ip = req.headers.get('x-forwarded-for') || req.ip || 'anonymous';
+    if (process.env.UPSTASH_REDIS_REST_URL) {
+      const { success } = await rateLimit.limit(ip);
+      if (!success) {
+        return NextResponse.json({ error: 'Rate limit exceeded. Try again in an hour.' }, { status: 429 });
+      }
+    }
+
+    // 2. Parse Request
+    const { messages, subject } = await req.json();
+    if (!messages || messages.length === 0) {
+      return NextResponse.json({ error: 'Messages are required' }, { status: 400 });
+    }
+
+    const lastMessage = messages[messages.length - 1];
+    const userQuery = lastMessage.content;
+
+    // 3. Generate Embeddings for the Query
+    let contextText = '';
+    if (process.env.PINECONE_API_KEY && process.env.PINECONE_INDEX_NAME) {
+      try {
+        const queryEmbedding = await getEmbeddings(userQuery);
+        
+        // 4. Query Pinecone for relevant context
+        const pinecone = getPineconeClient();
+        const index = pinecone.Index(process.env.PINECONE_INDEX_NAME);
+        
+        const searchResults = await index.query({
+          vector: queryEmbedding,
+          topK: 5,
+          includeMetadata: true,
+          filter: subject ? { subject: { $eq: subject } } : undefined
+        });
+
+        if (searchResults.matches && searchResults.matches.length > 0) {
+          contextText = searchResults.matches
+            .map((match: any) => match.metadata?.text || '')
+            .join('\n\n---\n\n');
+        }
+      } catch (err) {
+        console.error('Vector DB search error:', err);
+      }
+    }
+
+    // 5. Build System Prompt with Context
+    const systemInstruction = `You are a helpful AI study assistant for TBS Classes. 
+Your goal is to answer student questions STRICTLY based on the provided notes/syllabus context below.
+Do not use outside knowledge. If the answer is not present in the context below, you must reply exactly with: 
+"This isn't covered in our current notes for this subject" and do not attempt to guess.
+
+CONTEXT FROM NOTES:
+${contextText || 'No specific notes found for this query.'}`;
+
+    // 6. Keep only last 5 messages for context
+    const recentMessages = messages.slice(-5);
+    
+    // 7. Call Gemini API via Vercel AI SDK
+    const result = await streamText({
+      model: googleProvider('gemini-1.5-flash'),
+      system: systemInstruction,
+      messages: recentMessages,
+      onFinish: async ({ text }) => {
+        // 8. Log the Q&A to MongoDB asynchronously after streaming is complete
+        try {
+          if (process.env.MONGODB_URI) {
+            await connectToDatabase();
+            const logMessages = [
+              ...recentMessages,
+              { role: 'assistant', content: text }
+            ];
+            await ChatLog.create({
+              userId: ip,
+              subject: subject || 'General',
+              messages: logMessages
+            });
+          }
+        } catch (logErr) {
+          console.error('Error logging to MongoDB:', logErr);
+        }
+      }
+    });
+
+    return result.toTextStreamResponse();
+
+  } catch (error: any) {
+    console.error('Chat API Error:', error);
+    return NextResponse.json({ error: error.message || 'Something went wrong' }, { status: 500 });
+  }
+}
