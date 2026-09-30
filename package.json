@@ -23,6 +23,7 @@
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "framer-motion": "^13.4.4",
+    "jimp": "^1.6.1",
     "lucide-react": "^0.378.0",
     "mongoose": "^9.10.2",
     "next": "^14.2.35",

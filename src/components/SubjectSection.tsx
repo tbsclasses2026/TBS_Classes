@@ -14,7 +14,7 @@ const SubjectSection = () => {
       {/* Subtle radial gradient for depth */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-primary/10 rounded-full blur-[120px] pointer-events-none"></div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 relative z-10">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mb-8 relative z-10">
         <div className="text-center">
           <span className="text-primary font-bold tracking-[0.2em] uppercase text-xs mb-2 block">
             Core Curriculum

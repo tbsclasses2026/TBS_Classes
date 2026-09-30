@@ -2,8 +2,7 @@ import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import bcrypt from 'bcryptjs';
-import connectDB from '@/lib/db';
-import { User } from '@/lib/models/User';
+import { supabase } from '@/lib/supabase';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -22,10 +21,13 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Email and password required');
         }
 
-        await connectDB();
-        const user = await User.findOne({ email: credentials.email }).select('+password');
+        const { data: user, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('email', credentials.email)
+          .single();
         
-        if (!user || !user.password) {
+        if (error || !user || !user.password) {
           throw new Error('Invalid credentials');
         }
 
@@ -36,7 +38,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         return {
-          id: user._id.toString(),
+          id: user.id,
           name: user.name,
           email: user.email,
           role: user.role,
@@ -48,15 +50,22 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account }) {
       if (account?.provider === 'google') {
         try {
-          await connectDB();
-          const existingUser = await User.findOne({ email: user.email });
+          const { data: existingUser } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', user.email)
+            .single();
+
           if (!existingUser) {
             // Create a new user record for first-time Google sign-in
-            await User.create({
-              name: user.name,
-              email: user.email,
-              role: 'student', // Default role
-            });
+            const { error } = await supabase
+              .from('users')
+              .insert({
+                name: user.name,
+                email: user.email,
+                role: 'student', // Default role
+              });
+            if (error) throw error;
           }
         } catch (error) {
           console.error('Error saving Google user:', error);
@@ -67,8 +76,17 @@ export const authOptions: NextAuthOptions = {
     },
     async jwt({ token, user, trigger, session }) {
       if (user) {
-        token.id = user.id;
-        token.role = (user as any).role || 'student';
+        // Fetch the database user to get the correct UUID and role
+        const { data: dbUser } = await supabase
+          .from('users')
+          .select('id, role')
+          .eq('email', user.email)
+          .single();
+          
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.role = dbUser.role || 'student';
+        }
       }
       // Handle manual updates (e.g., when they complete onboarding)
       if (trigger === 'update' && session?.role) {

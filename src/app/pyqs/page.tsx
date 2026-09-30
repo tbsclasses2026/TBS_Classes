@@ -1,152 +1,163 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Filter, Search, FileText, Bookmark, Flame, BookOpen } from 'lucide-react';
-import { useSession } from 'next-auth/react';
+import { useState, useEffect } from "react";
+import { Search, Download, FileText, Eye, X, BookOpen, Filter } from "lucide-react";
+import dynamic from "next/dynamic";
+import { supabase } from "@/lib/supabase";
+
+const PDFViewer = dynamic(() => import("@/components/PDFViewer"), { ssr: false });
 
 export default function PYQBankPage() {
   const [pyqs, setPyqs] = useState<any[]>([]);
+  const [subjects, setSubjects] = useState<any[]>([]);
+  
+  const [search, setSearch] = useState("");
+  const [filterBranch, setFilterBranch] = useState("");
+  const [filterSem, setFilterSem] = useState("");
+  const [filterSubject, setFilterSubject] = useState("");
+
+  const [previewNote, setPreviewNote] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const { data: session } = useSession();
-
-  const [filters, setFilters] = useState({
-    university: '',
-    branch: '',
-    semester: '',
-    year: ''
-  });
-
-  const fetchPYQs = async () => {
-    setLoading(true);
-    try {
-      const queryParams = new URLSearchParams(filters).toString();
-      const res = await fetch(`/api/pyqs?${queryParams}`);
-      const data = await res.json();
-      setPyqs(data.pyqs || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
-    fetchPYQs();
-  }, [filters]);
+    async function fetchData() {
+      const { data: subData } = await supabase.from('subjects').select('*');
+      if (subData) setSubjects(subData);
 
-  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFilters({ ...filters, [e.target.name]: e.target.value });
+      const { data: pyqData } = await supabase.from('notes').select('*, subjects(*)').eq('type', 'PYQ');
+      if (pyqData) setPyqs(pyqData);
+      
+      setLoading(false);
+    }
+    fetchData();
+  }, []);
+
+  const handleDownload = async (pyq: any) => {
+    window.open(pyq.file_url, "_blank");
   };
 
+  const filteredPYQs = pyqs.filter((n: any) => {
+    const sub = n.subjects || {};
+    const matchSearch = n.title.toLowerCase().includes(search.toLowerCase()) || (sub.name || "").toLowerCase().includes(search.toLowerCase());
+    const matchBranch = filterBranch ? sub.branch === filterBranch : true;
+    const matchSem = filterSem ? sub.semester === filterSem : true;
+    const matchSubject = filterSubject ? sub.id === filterSubject : true;
+    return matchSearch && matchBranch && matchSem && matchSubject;
+  });
+
+  const uniqueBranches = Array.from(new Set(subjects.map((s: any) => s.branch)));
+  const uniqueSems = Array.from(new Set(subjects.map((s: any) => s.semester)));
+
   return (
-    <div className="min-h-screen bg-slate-50 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Header */}
+    <div className="min-h-screen bg-gray-50 pt-28 pb-12 px-6">
+      <div className="max-w-[1600px] mx-auto space-y-8">
         <div className="mb-10 text-center">
           <h1 className="text-4xl font-extrabold text-navy mb-4 flex items-center justify-center gap-3">
             <BookOpen className="w-10 h-10 text-primary" />
             Previous Year Question Bank
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Access past exam papers, detailed solutions, and structured question banks highlighting the most repeated topics.
+            Access past exam papers to highlight the most repeated topics and patterns.
           </p>
         </div>
-
+        
         {/* Filters */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-10">
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
           <div className="flex items-center gap-2 mb-4 text-navy font-semibold border-b border-gray-100 pb-3">
             <Filter className="w-5 h-5 text-primary" />
             Filter PYQs
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <select name="university" value={filters.university} onChange={handleFilterChange} className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border">
-              <option value="">All Universities</option>
-              <option value="Delhi Technological University">Delhi Technological University (DTU)</option>
-              <option value="NSUT">NSUT</option>
-              <option value="IPU">IP University</option>
-            </select>
 
-            <select name="branch" value={filters.branch} onChange={handleFilterChange} className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border">
+          <div className="relative">
+            <Search className="absolute left-4 top-3.5 text-gray-400 w-5 h-5" />
+            <input 
+              placeholder="Search by PYQ title or subject..." 
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full bg-gray-50 border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl py-3 pl-12 pr-4 outline-none transition"
+            />
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <select value={filterBranch} onChange={e => setFilterBranch(e.target.value)} className="w-full border p-3 rounded-xl bg-gray-50 outline-none">
               <option value="">All Branches</option>
-              <option value="CSE">Computer Science</option>
-              <option value="IT">Information Technology</option>
-              <option value="ECE">Electronics & Comm.</option>
-              <option value="MECH">Mechanical</option>
+              {uniqueBranches.map((b: any) => <option key={b} value={b}>{b}</option>)}
             </select>
-
-            <select name="semester" value={filters.semester} onChange={handleFilterChange} className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border">
+            <select value={filterSem} onChange={e => setFilterSem(e.target.value)} className="w-full border p-3 rounded-xl bg-gray-50 outline-none">
               <option value="">All Semesters</option>
-              {[1, 2, 3, 4, 5, 6, 7, 8].map(s => <option key={s} value={s.toString()}>Semester {s}</option>)}
+              {uniqueSems.map((s: any) => <option key={s} value={s}>{s}</option>)}
             </select>
-
-            <select name="year" value={filters.year} onChange={handleFilterChange} className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-2 border">
-              <option value="">All Years</option>
-              {[2023, 2022, 2021, 2020].map(y => <option key={y} value={y.toString()}>{y}</option>)}
+            <select value={filterSubject} onChange={e => setFilterSubject(e.target.value)} className="w-full border p-3 rounded-xl bg-gray-50 outline-none">
+              <option value="">All Subjects</option>
+              {subjects.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
           </div>
         </div>
 
-        {/* Results Grid */}
+        {/* PYQs Grid */}
         {loading ? (
-          <div className="flex justify-center items-center h-48">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          </div>
-        ) : pyqs.length === 0 ? (
-          <div className="text-center bg-white p-12 rounded-xl border border-gray-100">
-            <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900">No PYQs found</h3>
-            <p className="mt-1 text-gray-500">Try adjusting your filters to find more question papers.</p>
-          </div>
+          <div className="text-center py-12 text-gray-500 animate-pulse font-semibold">Loading PYQs...</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {pyqs.map((pyq) => {
-              // Calculate if it has highly repeated questions
-              const hasRepeatedQuestions = pyq.structuredQuestions?.some((q: any) => q.repeatCount >= 3);
-              const totalQuestions = pyq.structuredQuestions?.length || 0;
-
-              return (
-                <div key={pyq._id} className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-primary/50 transition-all overflow-hidden flex flex-col">
-                  <div className="p-5 flex-grow">
-                    <div className="flex justify-between items-start mb-3">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${pyq.questionType === 'end-sem' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}`}>
-                        {pyq.questionType === 'end-sem' ? 'End Semester' : 'Mid Semester'}
-                      </span>
-                      {hasRepeatedQuestions && (
-                        <span className="inline-flex items-center px-2 py-1 rounded bg-orange-100 text-orange-800 text-xs font-bold gap-1 shadow-sm">
-                          <Flame className="w-3 h-3 text-orange-600" />
-                          High Repeat Rate
-                        </span>
-                      )}
-                    </div>
-                    
-                    <h3 className="text-lg font-bold text-navy mb-1 line-clamp-2">{pyq.title}</h3>
-                    <p className="text-sm text-gray-500 mb-4">{pyq.universityName} • {pyq.branch} • Sem {pyq.semester}</p>
-                    
-                    <div className="flex items-center gap-4 text-sm text-gray-600 mt-auto">
-                      <div className="flex items-center gap-1">
-                        <FileText className="w-4 h-4 text-gray-400" />
-                        {totalQuestions > 0 ? `${totalQuestions} Questions` : 'PDF Only'}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Bookmark className="w-4 h-4 text-gray-400" />
-                        Save for later
-                      </div>
-                    </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredPYQs.map((pyq: any) => (
+              <div key={pyq.id} className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100 flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-start mb-4">
+                    <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold">
+                      PYQ Paper
+                    </span>
                   </div>
-                  
-                  <div className="border-t border-gray-100 p-4 bg-gray-50 mt-auto">
-                    <Link href={`/pyqs/${pyq._id}`} className="w-full inline-flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-navy bg-primary hover:bg-primary-hover transition-colors">
-                      View Paper & Analysis
-                    </Link>
-                  </div>
+                  <h3 className="text-xl font-bold text-navy mb-2">{pyq.title}</h3>
+                  <p className="text-gray-500 text-sm mb-6">{pyq.subjects?.name} • {pyq.subjects?.semester}</p>
                 </div>
-              );
-            })}
+                
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => setPreviewNote(pyq)}
+                    className="flex-1 flex items-center justify-center gap-2 bg-gray-100 text-gray-700 py-2.5 rounded-xl hover:bg-gray-200 transition font-medium"
+                  >
+                    <Eye className="w-4 h-4" /> Preview
+                  </button>
+                  <button 
+                    onClick={() => handleDownload(pyq)}
+                    className="flex-1 flex items-center justify-center gap-2 bg-primary text-white py-2.5 rounded-xl hover:bg-navy transition font-medium"
+                  >
+                    <Download className="w-4 h-4" /> Download
+                  </button>
+                </div>
+              </div>
+            ))}
+            {filteredPYQs.length === 0 && (
+              <div className="col-span-full text-center py-12 text-gray-500">
+                <FileText className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                <p>No Previous Year Questions found for these filters.</p>
+              </div>
+            )}
           </div>
         )}
       </div>
+
+      {/* PDF Preview Modal */}
+      {previewNote && (
+        <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-4xl h-[90vh] flex flex-col overflow-hidden">
+            <div className="p-4 border-b flex justify-between items-center bg-gray-50">
+              <h3 className="font-bold text-navy">{previewNote.title}</h3>
+              <div className="flex gap-4">
+                <button onClick={() => handleDownload(previewNote)} className="text-primary hover:text-navy flex items-center gap-2">
+                  <Download className="w-5 h-5" /> Download
+                </button>
+                <button onClick={() => setPreviewNote(null)} className="text-gray-500 hover:text-gray-800">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-auto bg-gray-100 p-4 flex justify-center">
+              <PDFViewer fileUrl={previewNote.file_url} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

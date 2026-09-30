@@ -58,7 +58,7 @@ export default function CodingDetailPage({ params }: { params: { courseId: strin
     <div className="bg-white">
       {/* Detail Hero */}
       <div className="bg-navy py-8 md:py-12 border-b border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row gap-8 items-start md:items-center justify-between">
             <div className="max-w-2xl text-white">
               <div className="inline-block px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm font-medium mb-4">

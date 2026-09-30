@@ -2,10 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Menu, X, BookOpen, LogOut, LayoutDashboard, UserCircle } from 'lucide-react';
+import { Menu, X, BookOpen, LogOut, LayoutDashboard, UserCircle, Home, FileText, FileQuestion, Code2, BrainCircuit, Map } from 'lucide-react';
 import Image from 'next/image';
 import { useSession, signOut } from 'next-auth/react';
-import SearchBar from '@/components/SearchBar';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,41 +12,37 @@ const Navbar = () => {
   const { data: session } = useSession();
 
   const navLinks = [
-    { name: 'Home', href: '/' },
-    { name: 'Subjects', href: '/subjects' },
-    { name: 'Notes', href: '/notes' },
-    { name: 'PYQs', href: '/pyqs' },
-    { name: 'Practice', href: '/practice' },
-    { name: 'Quizzes', href: '/quizzes' },
-    { name: 'Roadmaps', href: '/roadmaps' },
+    { name: 'Home', href: '/', icon: Home },
+    { name: 'Subjects', href: '/subjects', icon: BookOpen },
+    { name: 'Notes', href: '/notes', icon: FileText },
+    { name: 'PYQs', href: '/pyqs', icon: FileQuestion },
+    { name: 'Practice', href: '/practice', icon: Code2 },
+    { name: 'Quizzes', href: '/quizzes', icon: BrainCircuit },
+    { name: 'Roadmaps', href: '/roadmaps', icon: Map },
   ];
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-[100] relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-2">
               <Image src="/images/logo.png" alt="TBS Classes Logo" width={48} height={48} className="object-contain" />
               <span className="font-bold text-xl text-navy whitespace-nowrap">TBS Classes</span>
             </Link>
-            
-            {/* Search Bar (Hidden on Mobile) */}
-            <div className="hidden lg:block w-64 xl:w-80">
-              <SearchBar />
-            </div>
           </div>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-4 lg:space-x-5">
-            <div className="flex space-x-3 lg:space-x-4 items-center">
-              {navLinks.map((link) => (
+            <div className="flex space-x-1 lg:space-x-2 items-center">
+              {navLinks.map(({ name, href, icon: Icon }) => (
                 <Link
-                  key={link.name}
-                  href={link.href}
-                  className="text-navy-light hover:text-primary transition-colors text-sm font-medium"
+                  key={name}
+                  href={href}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-navy-light hover:text-primary hover:bg-primary/5 transition-all text-sm font-bold"
                 >
-                  {link.name}
+                  <Icon className="w-4 h-4" />
+                  <span>{name}</span>
                 </Link>
               ))}
             </div>

@@ -21,7 +21,7 @@ export default function SubjectDetailPage() {
     <div className="bg-white">
       {/* Hero */}
       <div className="bg-navy py-12 md:py-20 border-b border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 max-w-3xl">
             <div className="flex items-center gap-3">
               <span className="bg-gray-800 text-gray-300 text-sm font-medium px-3 py-1 rounded-full">Semester 1</span>
@@ -36,7 +36,7 @@ export default function SubjectDetailPage() {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col lg:flex-row gap-12">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col lg:flex-row gap-12">
         
         {/* Main Syllabus Area */}
         <div className="lg:w-2/3">

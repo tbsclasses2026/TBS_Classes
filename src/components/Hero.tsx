@@ -5,8 +5,8 @@ import { ArrowRight, Code2, BookOpen } from 'lucide-react';
 const Hero = () => {
   return (
     <section className="bg-white pt-0 lg:pt-2 pb-8 overflow-hidden lg:overflow-visible">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row lg:items-start lg:pt-12 items-center gap-16">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col lg:flex-row lg:items-start lg:pt-16 items-center gap-16">
 
           <div className="w-full lg:w-1/2 flex flex-col items-start text-left">
 
@@ -50,22 +50,22 @@ const Hero = () => {
             </div>
           </div>
 
-          <div className="w-full lg:w-1/2 relative mt-10 lg:mt-0">
+          <div className="w-full lg:w-1/2 relative mt-10 lg:mt-8">
 
-            <div className="aspect-square lg:aspect-[4/5] w-full flex items-center justify-center relative overflow-visible group">
+            <div className="h-[400px] sm:h-[500px] lg:h-[700px] w-full mx-auto flex items-center justify-center relative overflow-visible group">
               <Image
                 src="/images/students-normal.jpg"
                 alt="Engineering Students"
                 fill
                 priority
-                className="object-contain scale-100 md:scale-[1.25] origin-bottom brightness-110 contrast-105 transition-opacity duration-300 opacity-100 group-hover:opacity-0 z-10"
+                className="object-contain scale-110 md:scale-[1.20] origin-bottom brightness-110 contrast-105 transition-opacity duration-300 opacity-100 group-hover:opacity-0 z-10"
               />
               <Image
                 src="/images/students-smile.jpg"
                 alt="Engineering Students Smiling"
                 fill
                 priority
-                className="object-contain scale-100 md:scale-[1.25] origin-bottom brightness-110 contrast-105 transition-opacity duration-300 opacity-0 group-hover:opacity-100 z-10"
+                className="object-contain scale-110 md:scale-[1.20] origin-bottom brightness-110 contrast-105 transition-opacity duration-300 opacity-0 group-hover:opacity-100 z-10"
               />
             </div>
           </div>

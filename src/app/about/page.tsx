@@ -46,7 +46,7 @@ export default function AboutPage() {
       </div>
 
       {/* Mission & Focus */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div>
             <h2 className="text-3xl font-bold text-navy mb-6">Our Mission</h2>
@@ -85,7 +85,7 @@ export default function AboutPage() {
 
       {/* Why TBS Classes */}
       <div className="bg-gray-50 py-20 border-y border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-navy">Why TBS Classes</h2>
           </div>

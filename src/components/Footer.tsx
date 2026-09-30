@@ -4,7 +4,7 @@ import { BookOpen, Youtube, MessageCircle, Send } from 'lucide-react';
 const Footer = () => {
   return (
     <footer className="bg-navy text-white pt-12 pb-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>
             <Link href="/" className="flex items-center gap-2 mb-4">
@@ -29,6 +29,7 @@ const Footer = () => {
               <li><Link href="/resources" className="hover:text-primary transition-colors">Resources</Link></li>
               <li><Link href="/faculty" className="hover:text-primary transition-colors">Faculty</Link></li>
               <li><Link href="/about" className="hover:text-primary transition-colors">About</Link></li>
+              <li><Link href="/admin" className="hover:text-primary transition-colors font-bold text-primary">Teacher Portal</Link></li>
             </ul>
           </div>
 
@@ -66,6 +67,7 @@ const Footer = () => {
         <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
           <p>© 2026 TBS Classes. All rights reserved.</p>
           <div className="flex space-x-4 mt-4 md:mt-0">
+            <Link href="/admin" className="hover:text-primary transition-colors">Admin Login</Link>
             <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
             <Link href="/terms" className="hover:text-primary transition-colors">Terms & Conditions</Link>
           </div>

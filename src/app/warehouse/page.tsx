@@ -123,7 +123,7 @@ export default function WarehousePage() {
         <p className="text-gray-300 mt-2">Upload and manage daily content for TBS Classes</p>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col lg:flex-row gap-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col lg:flex-row gap-8">
 
         {/* Upload Form */}
         <div className="lg:w-1/3">

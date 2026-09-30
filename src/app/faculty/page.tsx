@@ -15,7 +15,7 @@ export default function FacultyPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-16 relative">
         
         {/* Unrevealed Overlay for the entire page */}
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 text-center mt-10">

@@ -50,7 +50,7 @@ export default function CodingPage() {
         <div className="absolute top-10 left-10 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-10 right-10 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <span className="bg-primary/20 text-primary font-bold px-4 py-1.5 rounded-full text-sm inline-block mb-6 border border-primary/30">
             Learn By Doing
           </span>
@@ -71,7 +71,7 @@ export default function CodingPage() {
         </div>
       </div>
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="flex justify-between items-end mb-10">
           <div>
             <h2 className="text-3xl font-bold text-navy mb-2">Learning Tracks</h2>

@@ -8,6 +8,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      maxWidth: {
+        '7xl': '1600px', // Increased from default 1280px to reduce side spaces
+      },
       colors: {
         primary: {
           DEFAULT: "#FFB800", // warm yellow/golden
